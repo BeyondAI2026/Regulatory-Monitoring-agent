@@ -1,43 +1,31 @@
-from github import Agent, Task, Crew
+import os
+import streamlit as st
+from openai import OpenAI
 
-# Agents
-scraper = Agent(
-    role="Scraper",
-    goal="Find latest UGC and AICTE updates",
-    backstory="Expert in Indian regulatory updates",
-    verbose=True
-)
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-summarizer = Agent(
-    role="Summarizer",
-    goal="Summarize regulatory updates clearly",
-    verbose=True
-)
+st.title("📊 Regulatory Monitoring Agent (India - EdTech)")
 
-impact = Agent(
-    role="Impact Analyst",
-    goal="Explain impact on EdTech business",
-    verbose=True
-)
+if st.button("Run Weekly Analysis"):
+    prompt = """
+    Find latest regulatory updates in India related to:
+    - UGC
+    - AICTE
+    - Data Protection (DPDP Act)
+    - ASCI
 
-memo = Agent(
-    role="Memo Writer",
-    goal="Write weekly compliance memo",
-    verbose=True
-)
+    Then provide:
 
-# Tasks
-task1 = Task(description="Find latest UGC and AICTE updates", agent=scraper)
-task2 = Task(description="Summarize updates into bullet points", agent=summarizer)
-task3 = Task(description="Explain impact on courses, marketing, and data", agent=impact)
-task4 = Task(description="Write final memo: what changed and what to do", agent=memo)
+    1. What changed
+    2. Why it matters
+    3. What an EdTech company like upGrad should do
 
-# Crew
-crew = Crew(
-    agents=[scraper, summarizer, impact, memo],
-    tasks=[task1, task2, task3, task4],
-    verbose=True
-)
+    Keep it crisp and actionable.
+    """
 
-result = crew.kickoff()
-print(result)
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[{"role": "user", "content": prompt}]
+    )
+
+    st.write(response.choices[0].message.content)
