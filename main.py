@@ -1,4 +1,4 @@
-from crewai import Agent, Task, Crew
+from github import Agent, Task, Crew
 
 # Agents
 scraper = Agent(
